@@ -1,0 +1,20 @@
+#include <windows.h>
+
+#define ID_MENU_OPTIONS 101
+#define ID_MENU_HELP 102
+#define ID_MENU_SETTINGS 103
+#define ID_MENU_ABOUT 104
+
+// Menu Identifications
+IDR_MENU1 MENU
+BEGIN
+    POPUP "&Options"
+    BEGIN
+        MENUITEM "&Settings", ID_MENU_SETTINGS
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About", ID_MENU_ABOUT
+    END
+END
+

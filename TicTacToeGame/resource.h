@@ -1,0 +1,12 @@
+#ifndef RESOURCE_H
+#define RESOURCE_H
+
+#define ID_MENU_OPTIONS 101
+#define ID_MENU_HELP 102
+#define ID_MENU_SETTINGS 103
+#define ID_MENU_ABOUT 104
+#define IDR_MENU1 5001
+
+#define ID_BUTTON_START 1001
+
+#endif
