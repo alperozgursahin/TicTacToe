@@ -38,7 +38,10 @@
 			<Add library="comctl32" />
 		</Linker>
 		<Unit filename="main.cpp" />
-		<Unit filename="stuff.h" />
+		<Unit filename="resource.h" />
+		<Unit filename="resource.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

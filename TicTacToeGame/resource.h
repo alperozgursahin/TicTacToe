@@ -7,6 +7,9 @@
 #define ID_MENU_ABOUT 104
 #define IDR_MENU1 5001
 
+#define ID_TURN_LABEL 101
+
 #define ID_BUTTON_START 1001
+#define ID_VERSUS_ICON 9001
 
 #endif

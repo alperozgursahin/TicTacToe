@@ -1,9 +1,5 @@
 #include <windows.h>
-
-#define ID_MENU_OPTIONS 101
-#define ID_MENU_HELP 102
-#define ID_MENU_SETTINGS 103
-#define ID_MENU_ABOUT 104
+#include "resource.h"
 
 // Menu Identifications
 IDR_MENU1 MENU
@@ -18,3 +14,4 @@ BEGIN
     END
 END
 
+ID_VERSUS_ICON ICON "versus.ico"
