@@ -5,6 +5,9 @@
 #define ID_MENU_HELP 102
 #define ID_MENU_SETTINGS 103
 #define ID_MENU_ABOUT 104
+#define ID_MENU_NEW_GAME 105
+#define ID_MENU_EXIT 106
+
 #define IDR_MENU1 5001
 
 #define ID_TURN_LABEL 101

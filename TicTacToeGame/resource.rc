@@ -1,12 +1,15 @@
 #include <windows.h>
 #include "resource.h"
 
-// Menu Identifications
+// Menu Definitions
 IDR_MENU1 MENU
 BEGIN
     POPUP "&Options"
     BEGIN
+        MENUITEM "&New Game", ID_MENU_NEW_GAME
         MENUITEM "&Settings", ID_MENU_SETTINGS
+        MENUITEM SEPARATOR  // This adds a separator
+        MENUITEM "&Exit", ID_MENU_EXIT
     END
     POPUP "&Help"
     BEGIN
@@ -14,4 +17,5 @@ BEGIN
     END
 END
 
+// Icon Definitions
 ID_VERSUS_ICON ICON "versus.ico"
