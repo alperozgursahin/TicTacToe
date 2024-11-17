@@ -19,6 +19,7 @@ HWND hGridButtons[3][3];
 // Player tracking (X or O) and name storage
 bool isPlayerX = true; // Tracks if the current player is X
 TCHAR player1Name[100], player2Name[100];
+int roundsPlayed, player1Score, player2Score = 0;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) {
     // Define window class properties
