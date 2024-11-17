@@ -9,11 +9,11 @@ LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
 // Global variables for window class, brush, font, and controls
 TCHAR szClassName[] = _T("CodeBlocksWindowsApp");
 HBRUSH hBrush;
-HFONT hFont;
+HFONT hFont, hScoreFont;
 
 // Handles for controls like text boxes, labels, buttons, etc.
 HWND hP1TextBox, hP2TextBox, hStartButton = NULL;
-HWND hP1Label, hP1ScoreLabel, hP2Label, hP2ScoreLabel, hTurnLabel, hVersusLabel = NULL;
+HWND hTitleLabel, hP1Label, hP1ScoreLabel, hP2Label, hP2ScoreLabel, hTurnLabel, hVersusLabel = NULL;
 HWND hGridButtons[3][3];
 
 // Player tracking (X or O) and name storage
@@ -53,6 +53,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArgum
 void CreateStartScreen(HWND hwnd) {
     hFont = CreateFont(24, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
                        CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("Arial"));
+    hScoreFont = CreateFont(48, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+                              CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("Impact"));
+
 
     // Helper function to create and configure controls
     auto SetControl = [&](LPCTSTR type, LPCTSTR text, DWORD style, int x, int y, int w, int h, HMENU id = NULL) {
@@ -62,11 +65,12 @@ void CreateStartScreen(HWND hwnd) {
     };
 
     // Create title label
-    SetControl(_T("STATIC"), _T("TIC TAC TOE"), SS_CENTER, 300, 30, 200, 30);
+    hTitleLabel = CreateWindow(_T("STATIC"), _T("TIC TAC TOE"), WS_CHILD | WS_VISIBLE | SS_CENTER, 300, 20, 200, 50, hwnd, NULL, NULL, NULL);
+    SendMessage(hTitleLabel, WM_SETFONT, (WPARAM)hScoreFont, TRUE);
 
     // Create player labels and text boxes
-    hP1Label = SetControl(_T("STATIC"), _T("(X) PLAYER 1"), SS_CENTER, 50, 150, 150, 50);
-    hP2Label = SetControl(_T("STATIC"), _T("(O) PLAYER 2"), SS_CENTER, 575, 150, 150, 50);
+    hP1Label = SetControl(_T("STATIC"), _T("(X) PLAYER 1"), SS_CENTER, 25, 150, 200, 50);
+    hP2Label = SetControl(_T("STATIC"), _T("(O) PLAYER 2"), SS_CENTER, 550, 150, 200, 50);
 
     // Create text boxes for player names
     hP1TextBox = SetControl(_T("EDIT"), _T("P1 Name"), WS_BORDER, 25, 200, 200, 40);
@@ -260,14 +264,14 @@ LRESULT HandleStartButtonClick(HWND hwnd) {
     CreateGameGrid(hwnd);
 
     // Create labels for player scores and turn indicator
-    hTurnLabel = CreateWindow(_T("STATIC"), _T(""), WS_CHILD | WS_VISIBLE | SS_CENTER, 250, 450, 300, 40, hwnd, NULL, NULL, NULL);
+    hTurnLabel = CreateWindow(_T("STATIC"), _T(""), WS_CHILD | WS_VISIBLE | SS_CENTER, 250, 475, 300, 40, hwnd, NULL, NULL, NULL);
     SendMessage(hTurnLabel, WM_SETFONT, (WPARAM)hFont, TRUE);
 
-    hP1ScoreLabel = CreateWindow(_T("STATIC"), _T("0"), WS_CHILD | WS_VISIBLE | SS_CENTER, 100, 250, 50, 50, hwnd, NULL, NULL, NULL);
-    SendMessage(hP1ScoreLabel, WM_SETFONT, (WPARAM)hFont, TRUE);
+    hP1ScoreLabel = CreateWindow(_T("STATIC"), _T("0"), WS_CHILD | WS_VISIBLE | SS_CENTER, 75, 250, 100, 50, hwnd, NULL, NULL, NULL);
+    SendMessage(hP1ScoreLabel, WM_SETFONT, (WPARAM)hScoreFont, TRUE);
 
-    hP2ScoreLabel = CreateWindow(_T("STATIC"), _T("0"), WS_CHILD | WS_VISIBLE | SS_CENTER, 625, 250, 50, 50, hwnd, NULL, NULL, NULL);
-    SendMessage(hP2ScoreLabel, WM_SETFONT, (WPARAM)hFont, TRUE);
+    hP2ScoreLabel = CreateWindow(_T("STATIC"), _T("0"), WS_CHILD | WS_VISIBLE | SS_CENTER, 600, 250, 100, 50, hwnd, NULL, NULL, NULL);
+    SendMessage(hP2ScoreLabel, WM_SETFONT, (WPARAM)hScoreFont, TRUE);
 
     // Set the turn label text (assumed to be defined elsewhere)
     SetTurnLabelText();
