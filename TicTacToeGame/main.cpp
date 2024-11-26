@@ -21,6 +21,11 @@ bool isPlayerX = true; // Tracks if the current player is X
 TCHAR player1Name[100], player2Name[100];
 int roundsPlayed, player1Score, player2Score = 0;
 
+bool isGameStarted = false;
+
+TCHAR filePath[] = _T("game_results.txt");
+
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) {
     // Define window class properties
     WNDCLASSEX wincl = {
@@ -51,11 +56,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArgum
 
 // Initializes and displays the start screen elements
 void CreateStartScreen(HWND hwnd) {
-    hFont = CreateFont(24, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-                       CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("Arial"));
-    hScoreFont = CreateFont(48, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-                              CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("Impact"));
 
+    hFont = CreateFont(24, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+                    CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("Arial"));
+    hScoreFont = CreateFont(48, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+                    CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("Impact"));
 
     // Helper function to create and configure controls
     auto SetControl = [&](LPCTSTR type, LPCTSTR text, DWORD style, int x, int y, int w, int h, HMENU id = NULL) {
@@ -250,15 +255,16 @@ LRESULT HandleStartButtonClick(HWND hwnd) {
 
     // Start the game and show a message
     MessageBox(hwnd, _T("Game is starting..."), _T("Game Mode"), MB_OK);
+    isGameStarted = true;
 
     // Update the labels with player names
     SetWindowText(hP1Label, player1Name);
     SetWindowText(hP2Label, player2Name);
 
     // Destroy the textboxes and start button
-    DestroyWindow(hP1TextBox);
-    DestroyWindow(hP2TextBox);
-    DestroyWindow(hStartButton);
+    ShowWindow(hP1TextBox, SW_HIDE);
+    ShowWindow(hP2TextBox, SW_HIDE);
+    ShowWindow(hStartButton, SW_HIDE);
 
     // Create the game grid (assumed to be defined elsewhere)
     CreateGameGrid(hwnd);
@@ -287,13 +293,93 @@ LRESULT HandleDestroyMessage() {
     return 0;
 }
 
+void DestroyGameGrid() {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (hGridButtons[i][j] != NULL) {
+                DestroyWindow(hGridButtons[i][j]); // Destroy button
+                hGridButtons[i][j] = NULL;
+            }
+        }
+    }
+}
+
+// Function to save the game result to the file
+void SaveGameResult(HWND hwnd) {
+    if (!isGameStarted) return;
+    MessageBox(hwnd, _T("Results are saving.."), _T("Game Mode"), MB_OK);
+    isGameStarted = false;
+    // Format the game result as a string
+    TCHAR gameResult[300];  // Enough space to hold the game result
+    _stprintf_s(gameResult, _countof(gameResult),
+                _T("%s's Score => %d , %s's => Score: %d\n"),  // Add \t for tabs
+                player1Name, player1Score, player2Name, player2Score);
+
+    // Open or create the file
+    HANDLE hFile = CreateFile(
+        filePath,
+        FILE_APPEND_DATA,  // Open in append mode
+        FILE_SHARE_READ,   // Allow other processes to read the file
+        nullptr,           // Default security attributes
+        OPEN_ALWAYS,       // Open if exists, create if not
+        FILE_ATTRIBUTE_NORMAL,
+        nullptr);
+
+    if (hFile == INVALID_HANDLE_VALUE) {
+        MessageBox(nullptr, _T("Failed to open the file!"), _T("Error"), MB_OK | MB_ICONERROR);
+        return;
+    }
+
+    // Move the file pointer to the end (redundant in this case with FILE_APPEND_DATA)
+    SetFilePointer(hFile, 0, nullptr, FILE_END);
+
+    // Write the result to the file
+    DWORD bytesWritten = 0;
+    BOOL success = WriteFile(
+        hFile,
+        gameResult,
+        static_cast<DWORD>(_tcslen(gameResult) * sizeof(TCHAR)),
+        &bytesWritten,
+        nullptr);
+
+    if (!success) {
+        MessageBox(nullptr, _T("Failed to write to the file!"), _T("Error"), MB_OK | MB_ICONERROR);
+    }
+
+    // Close the file handle
+    CloseHandle(hFile);
+}
+
+
+void StartNewGame(HWND hwnd) {
+    SaveGameResult(hwnd);
+    MessageBox(hwnd,_T("New Game Starting..."),_T("TicTacToe"),MB_OK);
+    player1Score = 0;
+    player2Score = 0;
+
+    SetWindowText(hP1Label, "(X) PLAYER 1");
+    SetWindowText(hP2Label, "(O) PLAYER 2");
+    SetWindowText(hP1TextBox, "P1 Name");
+    SetWindowText(hP2TextBox, "P2 Name");
+
+    ShowWindow(hP1TextBox, SW_SHOW);
+    ShowWindow(hP2TextBox, SW_SHOW);
+    ShowWindow(hStartButton, SW_SHOW);
+    ShowWindow(hP1ScoreLabel, SW_HIDE);
+    ShowWindow(hP2ScoreLabel, SW_HIDE);
+    ShowWindow(hTurnLabel, SW_HIDE);
+
+    DestroyGameGrid();
+
+}
+
 // WM_COMMAND message
 LRESULT HandleCommandMessage(HWND hwnd, WPARAM wParam, LPARAM lParam) {
     switch (LOWORD(wParam)) {
         case ID_BUTTON_START:
             return HandleStartButtonClick(hwnd);
         case ID_MENU_NEW_GAME:
-            MessageBox(hwnd,_T("New Game Starting..."),_T("TicTacToe"),MB_OK);
+            StartNewGame(hwnd);
             break;
         case ID_MENU_SETTINGS:
             MessageBox(hwnd, _T("Settings option clicked."), _T("Options"), MB_OK);

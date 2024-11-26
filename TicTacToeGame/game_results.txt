@@ -1,0 +1,7 @@
+alper's Score => 1 , efe's => Score: 1
+P1 Name's Score => 1 , P2 Name's => Score: 1
+P1 Name's Score => 1 , P2 Name's => Score: 0
+P1 Name's Score => 0 , P2 Name's => Score: 0
+P1 Name's Score => 0 , P2 Name's => Score: 0
+P1 Name's Score => 0 , P2 Name's => Score: 0
+P1 Name's Score => 0 , P2 Name's => Score: 0
