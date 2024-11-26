@@ -1,0 +1,3 @@
+EXPORTS
+    _ZN7dllspec8dllclass14SaveGameResultEP6HWND__PKcS4_iS4_iRb @1
+    _ZN7dllspec8dllclass15DestroyGameGridEPA3_P6HWND__ @2

@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1732644333 source:c:\users\alper\onedrive\masaüstü\projects\tictactoe\tictactoegame\tictactoedll\main.cpp
+	<windows.h>
+	"tictactoedllheader.h"
+	<tchar.h>
+	<stdio.h>
+
+1732644334 c:\users\alper\onedrive\masaüstü\projects\tictactoe\tictactoegame\tictactoedll\tictactoedllheader.h
+	<windows.h>
+

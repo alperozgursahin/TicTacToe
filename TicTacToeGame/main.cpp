@@ -2,6 +2,7 @@
 #include <windows.h>
 #include "resource.h"
 #include <cstdio>
+#include "tictactoedllheader.h"
 
 // Window procedure declaration
 LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
@@ -94,6 +95,7 @@ void CreateStartScreen(HWND hwnd) {
 
 // Creates the 3x3 game grid for Tic-Tac-Toe
 void CreateGameGrid(HWND hwnd) {
+    //dllspec::dllclass::CreateGameGrid(hwnd,hGridButtons,hFont,ID_BUTTON_START);
     int xOffset = 250, yOffset = 150, buttonSize = 100;
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
@@ -168,6 +170,7 @@ bool IsGridFull() {
 }
 
 void UpdateScore() {
+
     char buffer[32];
     // Player 1 Score Update
     if (isPlayerX) {
@@ -181,7 +184,6 @@ void UpdateScore() {
         sprintf(buffer, "%d", player2Score);
         SetWindowText(hP2ScoreLabel, buffer);
     }
-
 
 }
 
@@ -293,63 +295,14 @@ LRESULT HandleDestroyMessage() {
     return 0;
 }
 
-void DestroyGameGrid() {
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            if (hGridButtons[i][j] != NULL) {
-                DestroyWindow(hGridButtons[i][j]); // Destroy button
-                hGridButtons[i][j] = NULL;
-            }
-        }
-    }
-}
-
 // Function to save the game result to the file
 void SaveGameResult(HWND hwnd) {
-    if (!isGameStarted) return;
-    MessageBox(hwnd, _T("Results are saving.."), _T("Game Mode"), MB_OK);
-    isGameStarted = false;
-    // Format the game result as a string
-    TCHAR gameResult[300];  // Enough space to hold the game result
-    _stprintf_s(gameResult, _countof(gameResult),
-                _T("%s's Score => %d , %s's => Score: %d\n"),  // Add \t for tabs
-                player1Name, player1Score, player2Name, player2Score);
-
-    // Open or create the file
-    HANDLE hFile = CreateFile(
-        filePath,
-        FILE_APPEND_DATA,  // Open in append mode
-        FILE_SHARE_READ,   // Allow other processes to read the file
-        nullptr,           // Default security attributes
-        OPEN_ALWAYS,       // Open if exists, create if not
-        FILE_ATTRIBUTE_NORMAL,
-        nullptr);
-
-    if (hFile == INVALID_HANDLE_VALUE) {
-        MessageBox(nullptr, _T("Failed to open the file!"), _T("Error"), MB_OK | MB_ICONERROR);
-        return;
-    }
-
-    // Move the file pointer to the end (redundant in this case with FILE_APPEND_DATA)
-    SetFilePointer(hFile, 0, nullptr, FILE_END);
-
-    // Write the result to the file
-    DWORD bytesWritten = 0;
-    BOOL success = WriteFile(
-        hFile,
-        gameResult,
-        static_cast<DWORD>(_tcslen(gameResult) * sizeof(TCHAR)),
-        &bytesWritten,
-        nullptr);
-
-    if (!success) {
-        MessageBox(nullptr, _T("Failed to write to the file!"), _T("Error"), MB_OK | MB_ICONERROR);
-    }
-
-    // Close the file handle
-    CloseHandle(hFile);
+    dllspec::dllclass::SaveGameResult(hwnd, filePath, player1Name, player1Score, player2Name, player2Score,isGameStarted);
 }
 
+void DestroyGameGrid() {
+        dllspec::dllclass::DestroyGameGrid(hGridButtons);
+    }
 
 void StartNewGame(HWND hwnd) {
     SaveGameResult(hwnd);
@@ -369,7 +322,9 @@ void StartNewGame(HWND hwnd) {
     ShowWindow(hP2ScoreLabel, SW_HIDE);
     ShowWindow(hTurnLabel, SW_HIDE);
 
+    // Destroy Game Grid
     DestroyGameGrid();
+
 
 }
 

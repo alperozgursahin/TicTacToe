@@ -1,9 +1,10 @@
 # depslib dependency file v1.0
-1732635954 source:c:\users\alper\onedrive\masaüstü\projects\tictactoe\tictactoegame\main.cpp
+1732645028 source:c:\users\alper\onedrive\masaüstü\projects\tictactoe\tictactoegame\main.cpp
 	<tchar.h>
 	<windows.h>
 	"resource.h"
 	<cstdio>
+	"tictactoedllheader.h"
 
 1731262623 c:\users\alper\onedrive\masaüstü\projects\tictactoe\tictactoegame\stuff.h
 	<windows.h>
@@ -12,5 +13,8 @@
 	<windows.h>
 	"resource.h"
 
-1731854654 c:\users\alper\onedrive\masaüstü\projects\tictactoe\tictactoegame\resource.h
+1732644335 c:\users\alper\onedrive\masaüstü\projects\tictactoe\tictactoegame\resource.h
+
+1732644334 c:\users\alper\onedrive\masaüstü\projects\tictactoe\tictactoegame\tictactoedllheader.h
+	<windows.h>
 
