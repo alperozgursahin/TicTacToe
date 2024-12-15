@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1734269584 source:c:\users\alper\onedrive\masaüstü\projects\tictactoe\tictactoegame\main.cpp
+1734274210 source:c:\users\alper\onedrive\masaüstü\projects\tictactoe\tictactoegame\main.cpp
 	<tchar.h>
 	<windows.h>
 	"resource.h"

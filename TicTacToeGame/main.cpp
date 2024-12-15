@@ -29,13 +29,16 @@ TCHAR filePath[] = _T("game_results.txt");
 HINSTANCE hinstDLL;
 
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) {
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow)
+{
     hinstDLL = LoadLibrary("TicTacToeDLL.dll");
-    if (hinstDLL != 0) {
+    if (hinstDLL != 0)
+    {
         MessageBox(NULL, _T("TicTacToeDLL Loaded"), _T("DLL Load"), MB_OK);
     }
     // Define window class properties
-    WNDCLASSEX wincl = {
+    WNDCLASSEX wincl =
+    {
         sizeof(WNDCLASSEX), CS_DBLCLKS, WindowProcedure, 0, 0, hInstance,
         LoadIcon(NULL, IDI_APPLICATION), LoadCursor(NULL, IDC_ARROW),
         hBrush = CreateSolidBrush(RGB(173, 216, 230)), NULL,
@@ -54,7 +57,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArgum
 
     // Main message loop
     MSG messages;
-    while (GetMessage(&messages, NULL, 0, 0)) {
+    while (GetMessage(&messages, NULL, 0, 0))
+    {
         TranslateMessage(&messages);
         DispatchMessage(&messages);
     }
@@ -63,15 +67,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArgum
 
 
 // Initializes and displays the start screen elements
-void CreateStartScreen(HWND hwnd) {
+void CreateStartScreen(HWND hwnd)
+{
 
     hFont = CreateFont(24, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-                    CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("Arial"));
+                       CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("Arial"));
     hScoreFont = CreateFont(48, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-                    CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("Impact"));
+                            CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("Impact"));
 
     // Helper function to create and configure controls
-    auto SetControl = [&](LPCTSTR type, LPCTSTR text, DWORD style, int x, int y, int w, int h, HMENU id = NULL) {
+    auto SetControl = [&](LPCTSTR type, LPCTSTR text, DWORD style, int x, int y, int w, int h, HMENU id = NULL)
+    {
         HWND hCtrl = CreateWindow(type, text, WS_CHILD | WS_VISIBLE | style, x, y, w, h, hwnd, id, NULL, NULL);
         SendMessage(hCtrl, WM_SETFONT, (WPARAM)hFont, TRUE);
         return hCtrl;
@@ -94,7 +100,8 @@ void CreateStartScreen(HWND hwnd) {
 
     // Load and display "versus" icon
     HICON hIcon = (HICON)LoadImage(GetModuleHandle(0), MAKEINTRESOURCE(ID_VERSUS_ICON), IMAGE_ICON, 128, 128, LR_DEFAULTCOLOR);
-    if (hIcon) {
+    if (hIcon)
+    {
         hVersusLabel = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_ICON, 330, 150, 200, 200, hwnd, (HMENU)ID_VERSUS_ICON, (HINSTANCE)GetWindowLong(hwnd, GWLP_HINSTANCE), NULL);
         SendMessage(hVersusLabel, STM_SETIMAGE, IMAGE_ICON, (LPARAM)hIcon);
     }
@@ -102,27 +109,32 @@ void CreateStartScreen(HWND hwnd) {
 
 
 // Resets the grid to start a new game
-void ResetGameGrid() {
+void ResetGameGrid()
+{
     ResetGameGrid(hGridButtons, roundsPlayed, isPlayerX);
 }
 
 
 // Checks for a winner by examining rows, columns, and diagonals
-bool CheckWinner() {
+bool CheckWinner()
+{
     CheckWinner(hGridButtons);
 }
 
 
-void UpdateScore() {
+void UpdateScore()
+{
     char buffer[32];
     // Player 1 Score Update
-    if (isPlayerX) {
+    if (isPlayerX)
+    {
         player1Score++;
         sprintf(buffer, "%d", player1Score);
         SetWindowText(hP1ScoreLabel, buffer);
     }
     // Player 2 Score Update
-    else {
+    else
+    {
         player2Score++;
         sprintf(buffer, "%d", player2Score);
         SetWindowText(hP2ScoreLabel, buffer);
@@ -130,12 +142,16 @@ void UpdateScore() {
 }
 
 
-bool IsGridFull() {
+bool IsGridFull()
+{
     TCHAR text[2];
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
             GetWindowText(hGridButtons[i][j], text, 2);
-            if (text[0] == _T('\0')) {
+            if (text[0] == _T('\0'))
+            {
                 return false; // If there is a null button, return false
             }
         }
@@ -144,14 +160,18 @@ bool IsGridFull() {
 }
 
 // Shows the winner and resets the game
-void ShowWinner() {
-    if (CheckWinner()) {
+void ShowWinner()
+{
+    if (CheckWinner())
+    {
         TCHAR message[100];
         _stprintf_s(message, _T("Congratulations %s, you won!"), isPlayerX ? player1Name : player2Name);
         MessageBox(NULL, message, _T("Winner"), MB_OK);
         UpdateScore();
         ResetGameGrid();
-    } else if (IsGridFull()) {
+    }
+    else if (IsGridFull())
+    {
         MessageBox(NULL, _T("The game is a draw!"), _T("Draw"), MB_OK);
         ResetGameGrid();
     }
@@ -159,7 +179,8 @@ void ShowWinner() {
 
 
 // Updates the turn label text with the current player's turn
-void SetTurnLabelText() {
+void SetTurnLabelText()
+{
     TCHAR turnText[100];
     _stprintf_s(turnText, _T("%s's Turn"), isPlayerX ? player1Name : player2Name);
     SetWindowText(hTurnLabel, turnText);
@@ -167,10 +188,12 @@ void SetTurnLabelText() {
 
 
 // Handles click events on the grid
-void HandleGridButtonClick(HWND hButton) {
+void HandleGridButtonClick(HWND hButton)
+{
     TCHAR text[2];
     GetWindowText(hButton, text, 2);
-    if (text[0] == _T('\0')) {
+    if (text[0] == _T('\0'))
+    {
         SetWindowText(hButton, isPlayerX ? _T("X") : _T("O"));
         ShowWinner();
         isPlayerX = !isPlayerX;
@@ -180,10 +203,13 @@ void HandleGridButtonClick(HWND hButton) {
 
 
 // Creates the 3x3 game grid for Tic-Tac-Toe
-void CreateGameGrid(HWND hwnd) {
+void CreateGameGrid(HWND hwnd)
+{
     int xOffset = 250, yOffset = 150, buttonSize = 100;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
             hGridButtons[i][j] = CreateWindow(_T("BUTTON"), _T(""), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                               xOffset + j * buttonSize, yOffset + i * buttonSize, buttonSize, buttonSize,
                                               hwnd, (HMENU)(ID_BUTTON_START + 1 + i * 3 + j), NULL, NULL);
@@ -194,9 +220,12 @@ void CreateGameGrid(HWND hwnd) {
 
 
 // Function to check if the string is empty or contains only whitespace
-bool IsStringEmptyOrWhitespace(const TCHAR* str) {
-    while (*str) {
-        if (!_istspace(*str)) {
+bool IsStringEmptyOrWhitespace(const TCHAR* str)
+{
+    while (*str)
+    {
+        if (!_istspace(*str))
+        {
             return false; // If a non-space character is found, it's not empty
         }
         str++; // Move to the next character
@@ -205,19 +234,22 @@ bool IsStringEmptyOrWhitespace(const TCHAR* str) {
 }
 
 // Handle Start button click
-LRESULT HandleStartButtonClick(HWND hwnd) {
+LRESULT HandleStartButtonClick(HWND hwnd)
+{
     // Get the player names from the textboxes
     GetWindowText(hP1TextBox, player1Name, 100);
     GetWindowText(hP2TextBox, player2Name, 100);
 
     // Check if the names are empty or contain only whitespace
-    if (IsStringEmptyOrWhitespace(player1Name) || IsStringEmptyOrWhitespace(player2Name)) {
+    if (IsStringEmptyOrWhitespace(player1Name) || IsStringEmptyOrWhitespace(player2Name))
+    {
         MessageBox(hwnd, _T("Player names cannot be empty or only whitespace."), _T("Error"), MB_OK | MB_ICONERROR);
         return 0;
     }
 
     // Check if the names are the same
-    if (_tcscmp(player1Name, player2Name) == 0) {
+    if (_tcscmp(player1Name, player2Name) == 0)
+    {
         MessageBox(hwnd, _T("Players must have different names."), _T("Error"), MB_OK | MB_ICONERROR);
         return 0;
     }
@@ -256,18 +288,21 @@ LRESULT HandleStartButtonClick(HWND hwnd) {
 
 
 // Function to destroy the tic tac toe game grid 3x3
-void DestroyGameGrid() {
+void DestroyGameGrid()
+{
     DestroyGameGrid(hGridButtons);
 }
 
 
 // Function to save the game result to the file
-void SaveGameResult(HWND hwnd) {
+void SaveGameResult(HWND hwnd)
+{
     SaveGameResult(hwnd, filePath, player1Name, player1Score, player2Name, player2Score,isGameStarted);
 }
 
 // Function for starting new game
-void StartNewGame(HWND hwnd) {
+void StartNewGame(HWND hwnd)
+{
     SaveGameResult(hwnd);
     MessageBox(hwnd,_T("New Game Starting..."),_T("TicTacToe"),MB_OK);
     player1Score = 0;
@@ -290,7 +325,8 @@ void StartNewGame(HWND hwnd) {
 }
 
 // WM_DESTROY message
-LRESULT HandleDestroyMessage(HWND hwnd) {
+LRESULT HandleDestroyMessage(HWND hwnd)
+{
     SaveGameResult(hwnd);
     DeleteObject(hBrush);
     DeleteObject(hFont);
@@ -299,33 +335,37 @@ LRESULT HandleDestroyMessage(HWND hwnd) {
 }
 
 // WM_COMMAND message
-LRESULT HandleCommandMessage(HWND hwnd, WPARAM wParam, LPARAM lParam) {
-    switch (LOWORD(wParam)) {
-        case ID_BUTTON_START:
-            return HandleStartButtonClick(hwnd);
-        case ID_MENU_NEW_GAME:
-            StartNewGame(hwnd);
-            break;
-        case ID_MENU_SETTINGS:
-            MessageBox(hwnd, _T("Settings option clicked."), _T("Options"), MB_OK);
-            break;
-        case ID_MENU_ABOUT:
-            MessageBox(hwnd, _T("TicTacToe Game v1.0\nMade by Alper"), _T("About"), MB_OK);
-            break;
-        case ID_MENU_EXIT:
-            HandleDestroyMessage(hwnd);
-            break;
-        default:
-            if (LOWORD(wParam) >= ID_BUTTON_START + 1 && LOWORD(wParam) <= ID_BUTTON_START + 9) {
-                HandleGridButtonClick((HWND)lParam);
-            }
-            break;
+LRESULT HandleCommandMessage(HWND hwnd, WPARAM wParam, LPARAM lParam)
+{
+    switch (LOWORD(wParam))
+    {
+    case ID_BUTTON_START:
+        return HandleStartButtonClick(hwnd);
+    case ID_MENU_NEW_GAME:
+        StartNewGame(hwnd);
+        break;
+    case ID_MENU_SETTINGS:
+        MessageBox(hwnd, _T("Settings option clicked."), _T("Options"), MB_OK);
+        break;
+    case ID_MENU_ABOUT:
+        MessageBox(hwnd, _T("TicTacToe Game v1.0\nMade by Alper"), _T("About"), MB_OK);
+        break;
+    case ID_MENU_EXIT:
+        HandleDestroyMessage(hwnd);
+        break;
+    default:
+        if (LOWORD(wParam) >= ID_BUTTON_START + 1 && LOWORD(wParam) <= ID_BUTTON_START + 9)
+        {
+            HandleGridButtonClick((HWND)lParam);
+        }
+        break;
     }
     return 0;
 }
 
 // WM_CTLCOLORSTATIC message
-LRESULT HandleCtlColorStatic(WPARAM wParam) {
+LRESULT HandleCtlColorStatic(WPARAM wParam)
+{
     HDC hdcStatic = (HDC)wParam;
     SetBkColor(hdcStatic, RGB(173, 216, 230));
     return (INT_PTR)hBrush;
@@ -333,28 +373,31 @@ LRESULT HandleCtlColorStatic(WPARAM wParam) {
 
 
 // WM_CREATE message
-LRESULT HandleCreateMessage(HWND hwnd) {
+LRESULT HandleCreateMessage(HWND hwnd)
+{
     CreateStartScreen(hwnd);
     return 0;
 }
 
 // Processes Windows messages and routes them accordingly
-LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    switch (message) {
-        case WM_CREATE:
-            return HandleCreateMessage(hwnd);
+LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    case WM_CREATE:
+        return HandleCreateMessage(hwnd);
 
-        case WM_CTLCOLORSTATIC:
-            return HandleCtlColorStatic(wParam);
+    case WM_CTLCOLORSTATIC:
+        return HandleCtlColorStatic(wParam);
 
-        case WM_COMMAND:
-            return HandleCommandMessage(hwnd, wParam, lParam);
+    case WM_COMMAND:
+        return HandleCommandMessage(hwnd, wParam, lParam);
 
-        case WM_DESTROY:
-            return HandleDestroyMessage(hwnd);
+    case WM_DESTROY:
+        return HandleDestroyMessage(hwnd);
 
-        default:
-            return DefWindowProc(hwnd, message, wParam, lParam);
+    default:
+        return DefWindowProc(hwnd, message, wParam, lParam);
     }
     return 0;
 }
