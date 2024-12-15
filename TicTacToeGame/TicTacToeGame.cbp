@@ -37,6 +37,7 @@
 			<Add library="kernel32" />
 			<Add library="comctl32" />
 		</Linker>
+		<Unit filename="TicTacToeDLL/tictactoedllheader.h" />
 		<Unit filename="bin/Debug/TicTacToeDLL.dll" />
 		<Unit filename="main.cpp" />
 		<Unit filename="resource.h" />

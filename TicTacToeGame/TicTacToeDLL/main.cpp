@@ -3,8 +3,8 @@
 #include <tchar.h>
 #include <stdio.h>
 
-namespace dllspec {
-    void dllclass::DestroyGameGrid(HWND hGridButtons[3][3]) {
+
+void DestroyGameGrid(HWND hGridButtons[3][3]) {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (hGridButtons[i][j] != NULL) {
@@ -14,13 +14,13 @@ namespace dllspec {
             }
         }
     }
-    void dllclass::SaveGameResult(HWND hwnd,
-                              const TCHAR* filePath,
-                              const TCHAR* player1Name,
-                              int player1Score,
-                              const TCHAR* player2Name,
-                              int player2Score,
-                              bool& isGameStarted) {
+void SaveGameResult(HWND hwnd,
+                        const TCHAR* filePath,
+                        const TCHAR* player1Name,
+                        int player1Score,
+                        const TCHAR* player2Name,
+                        int player2Score,
+                        bool& isGameStarted) {
     if (!isGameStarted) return;
 
     MessageBox(hwnd, _T("Results are saving.."), _T("Game Mode"), MB_OK);
@@ -93,4 +93,49 @@ void CreateGameGrid(HWND hwnd, HWND hGridButtons[3][3], HFONT hFont, int ButtonS
     }
 }
 
+void ResetGameGrid(HWND hGridButtons[3][3], int& roundsPlayed, bool& isPlayerX) {
+    // Make all buttons in the grid texts empty
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+        HWND hButton = hGridButtons[i][j];
+        SetWindowText(hButton, _T(""));
+        }
+    }
+
+    roundsPlayed = 0;
+    isPlayerX = false;
 }
+
+bool CheckWinner(HWND hGridButtons[3][3]) {
+    TCHAR text1[2], text2[2], text3[2];
+    for (int i = 0; i < 3; i++) {
+        // Check rows
+        GetWindowText(hGridButtons[i][0], text1, 2);
+        GetWindowText(hGridButtons[i][1], text2, 2);
+        GetWindowText(hGridButtons[i][2], text3, 2);
+        if (_tcscmp(text1, text2) == 0 && _tcscmp(text2, text3) == 0 && text1[0] != _T('\0'))
+            return true;
+    }
+    for (int j = 0; j < 3; j++) {
+        // Check columns
+        GetWindowText(hGridButtons[0][j], text1, 2);
+        GetWindowText(hGridButtons[1][j], text2, 2);
+        GetWindowText(hGridButtons[2][j], text3, 2);
+        if (_tcscmp(text1, text2) == 0 && _tcscmp(text2, text3) == 0 && text1[0] != _T('\0'))
+            return true;
+    }
+    // Check diagonals
+    GetWindowText(hGridButtons[0][0], text1, 2);
+    GetWindowText(hGridButtons[1][1], text2, 2);
+    GetWindowText(hGridButtons[2][2], text3, 2);
+    if (_tcscmp(text1, text2) == 0 && _tcscmp(text2, text3) == 0 && text1[0] != _T('\0'))
+        return true;
+    GetWindowText(hGridButtons[0][2], text1, 2);
+    GetWindowText(hGridButtons[1][1], text2, 2);
+    GetWindowText(hGridButtons[2][0], text3, 2);
+    return _tcscmp(text1, text2) == 0 && _tcscmp(text2, text3) == 0 && text1[0] != _T('\0');
+
+}
+
+
+

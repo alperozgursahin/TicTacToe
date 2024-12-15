@@ -26,8 +26,14 @@ bool isGameStarted = false;
 
 TCHAR filePath[] = _T("game_results.txt");
 
+HINSTANCE hinstDLL;
+
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) {
+    hinstDLL = LoadLibrary("TicTacToeDLL.dll");
+    if (hinstDLL != 0) {
+        MessageBox(NULL, _T("TicTacToeDLL Loaded"), _T("DLL Load"), MB_OK);
+    }
     // Define window class properties
     WNDCLASSEX wincl = {
         sizeof(WNDCLASSEX), CS_DBLCLKS, WindowProcedure, 0, 0, hInstance,
@@ -54,6 +60,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArgum
     }
     return messages.wParam;
 }
+
 
 // Initializes and displays the start screen elements
 void CreateStartScreen(HWND hwnd) {
@@ -93,84 +100,20 @@ void CreateStartScreen(HWND hwnd) {
     }
 }
 
-// Creates the 3x3 game grid for Tic-Tac-Toe
-void CreateGameGrid(HWND hwnd) {
-    //dllspec::dllclass::CreateGameGrid(hwnd,hGridButtons,hFont,ID_BUTTON_START);
-    int xOffset = 250, yOffset = 150, buttonSize = 100;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            hGridButtons[i][j] = CreateWindow(_T("BUTTON"), _T(""), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                                              xOffset + j * buttonSize, yOffset + i * buttonSize, buttonSize, buttonSize,
-                                              hwnd, (HMENU)(ID_BUTTON_START + 1 + i * 3 + j), NULL, NULL);
-            SendMessage(hGridButtons[i][j], WM_SETFONT, (WPARAM)hFont, TRUE);
-        }
-    }
-}
 
 // Resets the grid to start a new game
 void ResetGameGrid() {
-    for (auto& row : hGridButtons) {
-        for (HWND hButton : row) {
-            SetWindowText(hButton, _T(""));
-        }
-    }
-    roundsPlayed++;
-    isPlayerX = false;
+    ResetGameGrid(hGridButtons, roundsPlayed, isPlayerX);
 }
 
-// Updates the turn label text with the current player's turn
-void SetTurnLabelText() {
-    TCHAR turnText[100];
-    _stprintf_s(turnText, _T("%s's Turn"), isPlayerX ? player1Name : player2Name);
-    SetWindowText(hTurnLabel, turnText);
-}
 
 // Checks for a winner by examining rows, columns, and diagonals
 bool CheckWinner() {
-    TCHAR text1[2], text2[2], text3[2];
-    for (int i = 0; i < 3; i++) {
-        // Check rows
-        GetWindowText(hGridButtons[i][0], text1, 2);
-        GetWindowText(hGridButtons[i][1], text2, 2);
-        GetWindowText(hGridButtons[i][2], text3, 2);
-        if (_tcscmp(text1, text2) == 0 && _tcscmp(text2, text3) == 0 && text1[0] != _T('\0'))
-            return true;
-    }
-    for (int j = 0; j < 3; j++) {
-        // Check columns
-        GetWindowText(hGridButtons[0][j], text1, 2);
-        GetWindowText(hGridButtons[1][j], text2, 2);
-        GetWindowText(hGridButtons[2][j], text3, 2);
-        if (_tcscmp(text1, text2) == 0 && _tcscmp(text2, text3) == 0 && text1[0] != _T('\0'))
-            return true;
-    }
-    // Check diagonals
-    GetWindowText(hGridButtons[0][0], text1, 2);
-    GetWindowText(hGridButtons[1][1], text2, 2);
-    GetWindowText(hGridButtons[2][2], text3, 2);
-    if (_tcscmp(text1, text2) == 0 && _tcscmp(text2, text3) == 0 && text1[0] != _T('\0'))
-        return true;
-    GetWindowText(hGridButtons[0][2], text1, 2);
-    GetWindowText(hGridButtons[1][1], text2, 2);
-    GetWindowText(hGridButtons[2][0], text3, 2);
-    return _tcscmp(text1, text2) == 0 && _tcscmp(text2, text3) == 0 && text1[0] != _T('\0');
+    CheckWinner(hGridButtons);
 }
 
-bool IsGridFull() {
-    TCHAR text[2];
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            GetWindowText(hGridButtons[i][j], text, 2);
-            if (text[0] == _T('\0')) {
-                return false; // If there is a null button, return false
-            }
-        }
-    }
-    return true; // All buttons are full
-}
 
 void UpdateScore() {
-
     char buffer[32];
     // Player 1 Score Update
     if (isPlayerX) {
@@ -184,7 +127,20 @@ void UpdateScore() {
         sprintf(buffer, "%d", player2Score);
         SetWindowText(hP2ScoreLabel, buffer);
     }
+}
 
+
+bool IsGridFull() {
+    TCHAR text[2];
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            GetWindowText(hGridButtons[i][j], text, 2);
+            if (text[0] == _T('\0')) {
+                return false; // If there is a null button, return false
+            }
+        }
+    }
+    return true; // All buttons are full
 }
 
 // Shows the winner and resets the game
@@ -201,6 +157,15 @@ void ShowWinner() {
     }
 }
 
+
+// Updates the turn label text with the current player's turn
+void SetTurnLabelText() {
+    TCHAR turnText[100];
+    _stprintf_s(turnText, _T("%s's Turn"), isPlayerX ? player1Name : player2Name);
+    SetWindowText(hTurnLabel, turnText);
+}
+
+
 // Handles click events on the grid
 void HandleGridButtonClick(HWND hButton) {
     TCHAR text[2];
@@ -213,18 +178,20 @@ void HandleGridButtonClick(HWND hButton) {
     }
 }
 
-// WM_CREATE message
-LRESULT HandleCreateMessage(HWND hwnd) {
-    CreateStartScreen(hwnd);
-    return 0;
+
+// Creates the 3x3 game grid for Tic-Tac-Toe
+void CreateGameGrid(HWND hwnd) {
+    int xOffset = 250, yOffset = 150, buttonSize = 100;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            hGridButtons[i][j] = CreateWindow(_T("BUTTON"), _T(""), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+                                              xOffset + j * buttonSize, yOffset + i * buttonSize, buttonSize, buttonSize,
+                                              hwnd, (HMENU)(ID_BUTTON_START + 1 + i * 3 + j), NULL, NULL);
+            SendMessage(hGridButtons[i][j], WM_SETFONT, (WPARAM)hFont, TRUE);
+        }
+    }
 }
 
-// WM_CTLCOLORSTATIC message
-LRESULT HandleCtlColorStatic(WPARAM wParam) {
-    HDC hdcStatic = (HDC)wParam;
-    SetBkColor(hdcStatic, RGB(173, 216, 230));
-    return (INT_PTR)hBrush;
-}
 
 // Function to check if the string is empty or contains only whitespace
 bool IsStringEmptyOrWhitespace(const TCHAR* str) {
@@ -287,23 +254,19 @@ LRESULT HandleStartButtonClick(HWND hwnd) {
     return 0;
 }
 
-// WM_DESTROY message
-LRESULT HandleDestroyMessage() {
-    DeleteObject(hBrush);
-    DeleteObject(hFont);
-    PostQuitMessage(0);
-    return 0;
+
+// Function to destroy the tic tac toe game grid 3x3
+void DestroyGameGrid() {
+    DestroyGameGrid(hGridButtons);
 }
+
 
 // Function to save the game result to the file
 void SaveGameResult(HWND hwnd) {
-    dllspec::dllclass::SaveGameResult(hwnd, filePath, player1Name, player1Score, player2Name, player2Score,isGameStarted);
+    SaveGameResult(hwnd, filePath, player1Name, player1Score, player2Name, player2Score,isGameStarted);
 }
 
-void DestroyGameGrid() {
-        dllspec::dllclass::DestroyGameGrid(hGridButtons);
-    }
-
+// Function for starting new game
 void StartNewGame(HWND hwnd) {
     SaveGameResult(hwnd);
     MessageBox(hwnd,_T("New Game Starting..."),_T("TicTacToe"),MB_OK);
@@ -324,8 +287,15 @@ void StartNewGame(HWND hwnd) {
 
     // Destroy Game Grid
     DestroyGameGrid();
+}
 
-
+// WM_DESTROY message
+LRESULT HandleDestroyMessage(HWND hwnd) {
+    SaveGameResult(hwnd);
+    DeleteObject(hBrush);
+    DeleteObject(hFont);
+    PostQuitMessage(0);
+    return 0;
 }
 
 // WM_COMMAND message
@@ -342,12 +312,29 @@ LRESULT HandleCommandMessage(HWND hwnd, WPARAM wParam, LPARAM lParam) {
         case ID_MENU_ABOUT:
             MessageBox(hwnd, _T("TicTacToe Game v1.0\nMade by Alper"), _T("About"), MB_OK);
             break;
+        case ID_MENU_EXIT:
+            HandleDestroyMessage(hwnd);
+            break;
         default:
             if (LOWORD(wParam) >= ID_BUTTON_START + 1 && LOWORD(wParam) <= ID_BUTTON_START + 9) {
                 HandleGridButtonClick((HWND)lParam);
             }
             break;
     }
+    return 0;
+}
+
+// WM_CTLCOLORSTATIC message
+LRESULT HandleCtlColorStatic(WPARAM wParam) {
+    HDC hdcStatic = (HDC)wParam;
+    SetBkColor(hdcStatic, RGB(173, 216, 230));
+    return (INT_PTR)hBrush;
+}
+
+
+// WM_CREATE message
+LRESULT HandleCreateMessage(HWND hwnd) {
+    CreateStartScreen(hwnd);
     return 0;
 }
 
@@ -364,7 +351,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             return HandleCommandMessage(hwnd, wParam, lParam);
 
         case WM_DESTROY:
-            return HandleDestroyMessage();
+            return HandleDestroyMessage(hwnd);
 
         default:
             return DefWindowProc(hwnd, message, wParam, lParam);
