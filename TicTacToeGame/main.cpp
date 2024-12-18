@@ -26,16 +26,32 @@ bool isGameStarted = false;
 
 TCHAR filePath[] = _T("game_results.txt");
 
-HINSTANCE hinstDLL;
+typedef int (__cdecl *MYPROC)(LPWSTR);
+HINSTANCE hinstLib;
+MYPROC ProcAdd;
+BOOL fFreeResult, fRunTimeLinkSuccess = FALSE;
 
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow)
 {
-    hinstDLL = LoadLibrary("TicTacToeDLL.dll");
-    if (hinstDLL != 0)
+    hinstLib = LoadLibrary("TicTacToeDLL.dll");
+    if (hinstLib != NULL)
     {
+        ProcAdd = (MYPROC) GetProcAddress(hinstLib, "myPuts");
         MessageBox(NULL, _T("TicTacToeDLL Loaded"), _T("DLL Load"), MB_OK);
+        if (NULL != ProcAdd)
+        {
+            fRunTimeLinkSuccess = TRUE;
+            (ProcAdd) (L"Message sent to the DLL Function\n");
+        }
+        fFreeResult = FreeLibrary(hinstLib);
     }
+    if (! fRunTimeLinkSuccess)
+    {
+        printf("Message printed from executable\n");
+    }
+
+
     // Define window class properties
     WNDCLASSEX wincl =
     {
